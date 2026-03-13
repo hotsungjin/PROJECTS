@@ -5,12 +5,14 @@ import Image from 'next/image'
 export default async function CategoriesPage() {
   const supabase = await createClient()
 
-  const { data: categories } = await supabase
+  const { data: categoriesRaw } = await (supabase as any)
     .from('categories')
     .select('id, name, slug, image_url, sort_order')
     .eq('is_active', true)
     .is('parent_id', null)
     .order('sort_order')
+
+  const categories = (categoriesRaw ?? []) as { id: number; name: string; slug: string; image_url: string | null; sort_order: number }[]
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f7f4f1' }}>
@@ -37,7 +39,7 @@ export default async function CategoriesPage() {
             <span className="text-[13px] font-medium" style={{ color: '#333' }}>전체 상품</span>
           </Link>
 
-          {(categories ?? []).map(cat => (
+          {categories.map(cat => (
             <Link
               key={cat.id}
               href={`/goods?category=${cat.slug}`}
