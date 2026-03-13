@@ -4,19 +4,15 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { SITE_NAME } from '@/constants'
 
-type Step = 'phone' | 'verify' | 'reset' | 'done'
+type Step = 'phone' | 'reset' | 'done'
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState<Step>('phone')
   const [phone, setPhone] = useState('')
-  const [code, setCode] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [timer, setTimer] = useState(0)
-  const [timerRef, setTimerRef] = useState<ReturnType<typeof setInterval> | null>(null)
-  const [verificationId, setVerificationId] = useState<number | null>(null)
 
   const inputStyle = { borderColor: '#e0dbd5', color: '#333' }
 
@@ -31,55 +27,11 @@ export default function ForgotPasswordPage() {
     return value.replace(/[^0-9]/g, '')
   }
 
-  function startTimer() {
-    if (timerRef) clearInterval(timerRef)
-    setTimer(180)
-    const ref = setInterval(() => {
-      setTimer(prev => {
-        if (prev <= 1) { clearInterval(ref); return 0 }
-        return prev - 1
-      })
-    }, 1000)
-    setTimerRef(ref)
-  }
-
-  function formatTimer(sec: number) {
-    return `${Math.floor(sec / 60)}:${(sec % 60).toString().padStart(2, '0')}`
-  }
-
-  async function handleSendCode() {
+  // TODO: 솔라피 계정 생성 후 SMS 인증 다시 활성화
+  function handleGoToReset() {
     const cleanPhone = getCleanPhone(phone)
     if (cleanPhone.length < 10) { setError('올바른 휴대폰 번호를 입력해주세요.'); return }
-
-    setLoading(true); setError('')
-    const res = await fetch('/api/v1/auth/send-code', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: cleanPhone, purpose: 'reset_password' }),
-    })
-    const data = await res.json()
-    setLoading(false)
-
-    if (!res.ok) { setError(data.error); return }
-    setStep('verify')
-    startTimer()
-  }
-
-  async function handleVerifyCode() {
-    if (code.length !== 6) { setError('6자리 인증번호를 입력해주세요.'); return }
-
-    setLoading(true); setError('')
-    const res = await fetch('/api/v1/auth/verify-code', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: getCleanPhone(phone), code, purpose: 'reset_password' }),
-    })
-    const data = await res.json()
-    setLoading(false)
-
-    if (!res.ok) { setError(data.error); return }
-    setVerificationId(data.verificationId)
-    if (timerRef) clearInterval(timerRef)
+    setError('')
     setStep('reset')
   }
 
@@ -95,7 +47,6 @@ export default function ForgotPasswordPage() {
       body: JSON.stringify({
         phone: getCleanPhone(phone),
         password: newPassword,
-        verificationId,
       }),
     })
     const data = await res.json()
@@ -132,7 +83,7 @@ export default function ForgotPasswordPage() {
             <>
               <h2 className="text-lg font-bold text-gray-900 mb-2">비밀번호 재설정</h2>
               <p className="text-sm text-gray-500 mb-6">
-                가입하신 휴대폰 번호로 본인 인증 후 비밀번호를 재설정합니다.
+                가입하신 휴대폰 번호를 입력하여 비밀번호를 재설정합니다.
               </p>
 
               {error && (
@@ -141,44 +92,20 @@ export default function ForgotPasswordPage() {
                 </div>
               )}
 
-              {/* 휴대폰 입력 + 인증요청 */}
-              {(step === 'phone' || step === 'verify') && (
+              {/* 휴대폰 입력 (인증 없이 바로 진행) */}
+              {step === 'phone' && (
                 <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input type="tel" value={phone}
-                      onChange={e => setPhone(formatPhone(e.target.value))}
-                      placeholder="휴대폰 번호" disabled={step === 'verify'}
-                      className="flex-1 border rounded-xl px-4 py-3 text-[14px] focus:outline-none disabled:bg-gray-50"
-                      style={inputStyle} />
-                    <button onClick={handleSendCode}
-                      disabled={loading || getCleanPhone(phone).length < 10}
-                      className="px-4 py-3 rounded-xl text-[13px] font-medium text-white disabled:opacity-50 whitespace-nowrap"
-                      style={{ backgroundColor: '#968774' }}>
-                      {loading && step === 'phone' ? '발송중...' : step === 'verify' ? '재발송' : '인증요청'}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* 인증번호 입력 */}
-              {step === 'verify' && (
-                <div className="mt-3 space-y-3">
-                  <div className="flex gap-2">
-                    <input type="text" value={code}
-                      onChange={e => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-                      placeholder="인증번호 6자리" maxLength={6}
-                      className="flex-1 border rounded-xl px-4 py-3 text-[14px] focus:outline-none tracking-[0.3em]"
-                      style={inputStyle} />
-                    <button onClick={handleVerifyCode}
-                      disabled={loading || code.length !== 6 || timer === 0}
-                      className="px-4 py-3 rounded-xl text-[13px] font-medium text-white disabled:opacity-50 whitespace-nowrap"
-                      style={{ backgroundColor: '#968774' }}>
-                      {loading ? '확인중...' : '확인'}
-                    </button>
-                  </div>
-                  {timer > 0 && (
-                    <p className="text-[12px]" style={{ color: '#e84a3b' }}>남은 시간: {formatTimer(timer)}</p>
-                  )}
+                  <input type="tel" value={phone}
+                    onChange={e => setPhone(formatPhone(e.target.value))}
+                    placeholder="가입하신 휴대폰 번호"
+                    className="w-full border rounded-xl px-4 py-3 text-[14px] focus:outline-none"
+                    style={inputStyle} />
+                  <button onClick={handleGoToReset}
+                    disabled={getCleanPhone(phone).length < 10}
+                    className="w-full py-3.5 rounded-xl font-semibold text-[15px] text-white disabled:opacity-50"
+                    style={{ backgroundColor: '#968774' }}>
+                    다음
+                  </button>
                 </div>
               )}
 

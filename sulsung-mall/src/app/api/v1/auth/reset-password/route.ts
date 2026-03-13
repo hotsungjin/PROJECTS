@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 const schema = z.object({
   phone: z.string().min(10),
   password: z.string().min(8),
-  verificationId: z.number(),
+  verificationId: z.number().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -13,19 +13,8 @@ export async function POST(req: NextRequest) {
     const body = schema.parse(await req.json())
     const supabase = await createAdminClient() as any
 
-    // 인증 완료 여부 확인
-    const { data: verification } = await supabase
-      .from('sms_verifications')
-      .select('*')
-      .eq('id', body.verificationId)
-      .eq('phone', body.phone)
-      .eq('purpose', 'reset_password')
-      .eq('verified', true)
-      .single()
-
-    if (!verification) {
-      return NextResponse.json({ error: '휴대폰 인증이 완료되지 않았습니다.' }, { status: 400 })
-    }
+    // TODO: 솔라피 계정 생성 후 SMS 인증 다시 활성화
+    // 현재는 인증 없이 비밀번호 변경 허용
 
     // 회원 조회
     const { data: member } = await supabase
