@@ -74,6 +74,30 @@ export default function CurationDetailClient({ curationId }: { curationId: strin
     setChanged(true)
   }
 
+  function moveItemTo(fromIdx: number, toIdx: number) {
+    if (fromIdx === toIdx || toIdx < 0 || toIdx >= items.length) return
+    const arr = [...items]
+    const [moved] = arr.splice(fromIdx, 1)
+    arr.splice(toIdx, 0, moved)
+    setItems(arr)
+    setChanged(true)
+  }
+
+  function addAllSearchResults() {
+    const newItems = searchResults.filter(g => !selectedIds.has(g.id))
+    if (newItems.length === 0) return
+    setItems(prev => [
+      ...prev,
+      ...newItems.map((g, i) => ({
+        id: crypto.randomUUID(),
+        sort_order: prev.length + i,
+        goods_id: g.id,
+        goods: g,
+      }))
+    ])
+    setChanged(true)
+  }
+
   async function handleSave() {
     setSaving(true)
     const goods_ids = items.map(i => i.goods_id)
@@ -132,6 +156,13 @@ export default function CurationDetailClient({ curationId }: { curationId: strin
             </button>
           </div>
 
+          {searchResults.length > 0 && searchResults.some(g => !selectedIds.has(g.id)) && (
+            <button onClick={addAllSearchResults}
+              className="w-full mb-3 py-2 border border-green-600 text-green-700 rounded-lg text-sm font-medium hover:bg-green-50 transition">
+              전체 추가 ({searchResults.filter(g => !selectedIds.has(g.id)).length}개)
+            </button>
+          )}
+
           <div className="space-y-1 max-h-[500px] overflow-y-auto">
             {searching && <p className="text-sm text-gray-400 py-4 text-center">검색 중...</p>}
             {searchResults.map(g => (
@@ -176,7 +207,19 @@ export default function CurationDetailClient({ curationId }: { curationId: strin
                   <button onClick={() => moveItem(idx, 1)} disabled={idx === items.length - 1}
                     className="text-gray-300 hover:text-gray-600 disabled:opacity-30 text-[10px]">▼</button>
                 </div>
-                <span className="text-xs text-gray-400 w-5 text-center flex-shrink-0">{idx + 1}</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={items.length}
+                  value={idx + 1}
+                  onChange={e => {
+                    const target = parseInt(e.target.value, 10)
+                    if (!isNaN(target) && target >= 1 && target <= items.length) {
+                      moveItemTo(idx, target - 1)
+                    }
+                  }}
+                  className="w-8 text-xs text-gray-500 text-center flex-shrink-0 border border-transparent hover:border-gray-300 focus:border-green-500 focus:outline-none rounded py-0.5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
                 <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
                   {item.goods?.thumbnail_url && <img src={item.goods.thumbnail_url} alt="" className="w-full h-full object-cover" />}
                 </div>
