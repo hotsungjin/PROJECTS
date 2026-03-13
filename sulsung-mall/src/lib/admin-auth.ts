@@ -28,6 +28,7 @@ export const PERMISSION_MAP: Record<string, string> = {
   '/admin/settings': 'settings',
   '/admin/admins': 'admins',
   '/admin/cart-abandonment': 'orders',
+  '/admin/referral': 'members',
 }
 
 export const ALL_PERMISSIONS = [

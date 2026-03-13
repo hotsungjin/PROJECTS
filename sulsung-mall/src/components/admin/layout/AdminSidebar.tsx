@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Package, ShoppingBag, Users, Tag, FolderTree, Layers, Bookmark,
   BarChart2, Image, MessageSquare, Settings, Star, Bell, Clock, Megaphone, ShoppingCart, Mail,
-  HelpCircle, MessageCircle, ShieldCheck, ClipboardList, FileText,
+  HelpCircle, MessageCircle, ShieldCheck, ClipboardList, FileText, UserPlus,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { SITE_NAME } from '@/constants'
@@ -27,6 +27,7 @@ const MENU = [
   { href: '/admin/banners',          icon: Image,           label: '배너 관리',      permission: 'banners' },
   { href: '/admin/time-sales',       icon: Clock,           label: '타임세일',       permission: 'time_sales' },
   { href: '/admin/popups',           icon: Megaphone,       label: '팝업 관리',      permission: 'popups' },
+  { href: '/admin/referral',          icon: UserPlus,        label: '추천 관리',      permission: 'members' },
   { href: '/admin/cart-abandonment', icon: ShoppingCart,     label: '이탈 장바구니',  permission: 'orders' },
   { href: '/admin/stats',            icon: BarChart2,       label: '통계',           permission: 'stats' },
   { href: '/admin/email',            icon: Mail,            label: '이메일 발송',    permission: 'email' },
