@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendOrderConfirm, sendCancelComplete } from '@/lib/notification/solapi'
 import { formatPrice } from '@/utils/format'
+import { distributeReferralRewards, cancelReferralRewards } from '@/lib/referral-reward'
 
 // 토스페이먼츠 웹훅 시크릿 검증
 function verifyWebhook(req: NextRequest): boolean {
@@ -78,6 +79,11 @@ export async function POST(req: NextRequest) {
             totalAmount: formatPrice(order.total_amount),
           }).catch(console.error)
         }
+
+        // 추천 리워드 지급
+        distributeReferralRewards(supabase, order.id, order.member_id, order.total_amount)
+          .catch(err => console.error('[Referral Reward Error]', err))
+
         break
       }
 
@@ -115,6 +121,9 @@ export async function POST(req: NextRequest) {
           memo: '토스 웹훅 결제 취소',
           changed_by: 'system',
         })
+
+        // 추천 리워드 취소
+        await cancelReferralRewards(supabase, order.id)
 
         // 재고 복구
         const { data: orderItems } = await supabase

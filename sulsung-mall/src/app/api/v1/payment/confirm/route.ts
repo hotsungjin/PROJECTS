@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { confirmPayment } from '@/lib/payment/toss'
 import { sendOrderConfirm } from '@/lib/notification/solapi'
 import { formatPrice } from '@/utils/format'
+import { distributeReferralRewards } from '@/lib/referral-reward'
 
 const schema = z.object({
   paymentKey: z.string(),
@@ -73,6 +74,10 @@ export async function POST(req: NextRequest) {
         totalAmount: formatPrice(order.total_amount),
       }).catch(console.error)
     }
+
+    // 6. 추천 리워드 지급
+    distributeReferralRewards(supabase, order.id, order.member_id, order.total_amount)
+      .catch(err => console.error('[Referral Reward Error]', err))
 
     return NextResponse.json({ success: true, orderId: order.id })
   } catch (err: any) {
