@@ -75,7 +75,7 @@ function IconMypage({ active }: { active: boolean }) {
 
 const NAV_ITEMS = [
   { key: 'home',     href: '/',                      icon: IconHome,     label: '홈' },
-  { key: 'category', href: '/goods?sort=sale_count',  icon: IconCategory, label: '카테고리' },
+  { key: 'category', href: '/categories',              icon: IconCategory, label: '카테고리' },
   { key: 'search',   href: '/goods?q=',              icon: IconSearch,   label: '검색' },
   { key: 'wishlist', href: '/mypage/wishlist',        icon: IconWishlist, label: '관심상품' },
   { key: 'mypage',   href: '/mypage',                icon: IconMypage,   label: '마이페이지' },
@@ -86,7 +86,7 @@ export default function BottomNav() {
 
   const isActive = (key: string) => {
     if (key === 'home') return pathname === '/'
-    if (key === 'category') return pathname === '/goods'
+    if (key === 'category') return pathname === '/categories'
     if (key === 'wishlist') return pathname === '/mypage/wishlist'
     if (key === 'mypage') return pathname === '/mypage'
     return false
