@@ -27,6 +27,8 @@ export default function CategoryClient({
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#fff' }}>
+      {/* 카테고리 페이지에서 푸터 숨김 */}
+      <style>{`[data-store-footer] { display: none !important; }`}</style>
       {/* 헤더 */}
       <div className="px-4 py-3 border-b" style={{ borderColor: '#eee' }}>
         <h1 className="text-[17px] font-bold" style={{ color: '#333' }}>카테고리</h1>
