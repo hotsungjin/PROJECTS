@@ -43,8 +43,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // auth 경로는 항상 허용
-  if (pathname.startsWith('/auth')) {
+  // auth 경로, 관리자 로그인은 항상 허용
+  if (pathname.startsWith('/auth') || pathname === '/admin/login') {
     return NextResponse.next()
   }
 
