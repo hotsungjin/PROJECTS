@@ -34,7 +34,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         <div className="app-scroll-wrapper relative h-full w-full max-w-[480px] overflow-y-auto overscroll-none md:w-[480px]">
           <div className="relative flex min-h-full flex-col bg-white">
             <Suspense><Header /></Suspense>
-            <div className="flex-1 pb-[52px]" style={{ backgroundColor: '#f5f5f5' }}>
+            <div className="flex-1 pb-[52px]">
               {children}
               <Footer />
             </div>
