@@ -30,7 +30,7 @@ export default function MobileGoodsCard({ goods }: { goods: GoodsItem; isFirst?:
           {/* 이미지 — 4:5 비율 */}
           <div
             className="w-full overflow-hidden bg-gray-100 relative"
-            style={{ aspectRatio: '4 / 5', borderRadius: '6px' }}
+            style={{ aspectRatio: '4 / 5', borderRadius: '4px' }}
           >
             {goods.thumbnail_url ? (
               <img src={goods.thumbnail_url} alt={goods.name} className="w-full h-full object-cover" loading="lazy" />
@@ -51,7 +51,7 @@ export default function MobileGoodsCard({ goods }: { goods: GoodsItem; isFirst?:
           className="w-full flex items-center justify-center gap-1.5"
           style={{
             border: '1px solid #e5e5e5',
-            borderRadius: '6px',
+            borderRadius: '4px',
             color: '#555',
             marginTop: '6px',
             height: '32px',
