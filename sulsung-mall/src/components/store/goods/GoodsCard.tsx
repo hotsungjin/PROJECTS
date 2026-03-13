@@ -60,7 +60,7 @@ export default function GoodsCard({ goods }: GoodsCardProps) {
           className="w-full flex items-center justify-center gap-1.5"
           style={{
             border: '1px solid #e5e5e5',
-            borderRadius: '6px',
+            borderRadius: '4px',
             color: '#555',
             marginBottom: '6px',
             height: '32px',
