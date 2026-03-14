@@ -113,7 +113,22 @@ export default async function GoodsListPage({ searchParams }: { searchParams: Pr
     count = gCount
   }
   const { data: categoriesRaw } = await supabase.from('categories').select('id, name, slug').eq('is_active', true).is('parent_id', null)
-  const categories = categoriesRaw as unknown as { id: number; name: string; slug: string }[]
+  // 상품이 있는 카테고리만 필터링
+  const allCats = (categoriesRaw ?? []) as unknown as { id: number; name: string; slug: string }[]
+  const { data: allChildren } = await supabase.from('categories').select('id, parent_id').eq('is_active', true).not('parent_id', 'is', null)
+  const childrenMap = new Map<number, number[]>()
+  for (const c of (allChildren ?? []) as any[]) {
+    const arr = childrenMap.get(c.parent_id) ?? []
+    arr.push(c.id)
+    childrenMap.set(c.parent_id, arr)
+  }
+  const { data: goodsCounts } = await (supabase as any).from('goods').select('category_id').eq('status', 'active')
+  const catIdSet = new Set((goodsCounts ?? []).map((g: any) => g.category_id))
+  const categories = allCats.filter(cat => {
+    if (catIdSet.has(cat.id)) return true
+    const kids = childrenMap.get(cat.id) ?? []
+    return kids.some(kid => catIdSet.has(kid))
+  })
 
   // 활성 필터 개수
   const activeFilters = [params.min_price, params.max_price, params.tag].filter(Boolean).length
