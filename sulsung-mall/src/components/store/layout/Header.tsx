@@ -120,19 +120,14 @@ export default function Header() {
                 <Link
                   key={tab.label}
                   href={tab.href}
-                  className="flex-shrink-0 px-4 py-3 text-[16px] whitespace-nowrap relative"
+                  className="flex-shrink-0 px-4 py-3 text-[16px] whitespace-nowrap"
                   style={{
                     color: isActive ? '#968774' : '#333',
                     fontWeight: isActive ? 700 : 400,
+                    borderBottom: isActive ? '2.5px solid #968774' : '2.5px solid transparent',
                   }}
                 >
                   {tab.label}
-                  {isActive && (
-                    <span
-                      className="absolute bottom-0 left-4 right-4 h-[2px]"
-                      style={{ backgroundColor: '#968774' }}
-                    />
-                  )}
                 </Link>
               )
             })}
